@@ -19,7 +19,9 @@ Landing page Streamlit que integra proyectos académicos UCSA (Universidad del C
 - Idioma del sitio: español (público UCSA Paraguay)
 
 ## Evidencia de commits
-- (pendiente)
+- 8d66504 chore: scaffold (docs ODD, README, AGENTS.md, logo oficial)
+- 7c7b408 feat: landing + 3 apps stub + router
+- bb7a230 feat: run_lan.sh (Tailscale, puerto 8989)
 
 ## Resultado smoke test (AppTest)
 - landing / academico / rrhh / ecommerce: todos renderizan sin excepción

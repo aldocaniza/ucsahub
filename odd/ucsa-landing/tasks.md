@@ -17,4 +17,5 @@ Objetivo: landing Streamlit con branding oficial UCSA (colores de ucsa.edu.py: n
 | T-7 | Smoke test headless | done |
 
 ## Evidencia de commits
-- (pendiente)
+## Evidencia de commits
+- `8d66504` chore: scaffold · `7c7b408` feat: landing + 3 apps stub · `bb7a230` feat: run_lan.sh
