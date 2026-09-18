@@ -6,7 +6,7 @@ import random
 import pandas as pd
 import streamlit as st
 
-from apps.theme import NAVY, STEEL, TEAL, render_topbar
+from apps.theme import PRIMARY, TEAL, kpi_card_html, render_app_header
 
 FACULTADES = [
     "Ciencias Empresariales",
@@ -50,42 +50,43 @@ def _alumnos() -> pd.DataFrame:
 
 def _kpi_row() -> None:
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Alumnos activos", "12 480", "+3,1 %")
-    k2.metric("Materias ofertadas", "214", "+8")
-    k3.metric("Docentes", "387", "+12")
-    k4.metric("Tasa de aprobación", "84,6 %", "+1,8 %")
+    k1.markdown(kpi_card_html("Alumnos activos", "12 480", "+3,1 %"), unsafe_allow_html=True)
+    k2.markdown(kpi_card_html("Materias ofertadas", "214", "+8"), unsafe_allow_html=True)
+    k3.markdown(kpi_card_html("Docentes", "387", "+12"), unsafe_allow_html=True)
+    k4.markdown(kpi_card_html("Tasa de aprobación", "84,6 %", "+1,8 %"), unsafe_allow_html=True)
 
 
 def run() -> None:
-    render_topbar("Panel Académico — UCSA")
-    st.markdown(
-        f"<h2 style='color:{NAVY};margin:0.4rem 0;'>🎓 Gestión de Informaciones Académicas</h2>",
-        unsafe_allow_html=True,
+    render_app_header(
+        "Panel Académico",
+        "Demo stub — datos de ejemplo. Los datos reales se conectan a las plataformas académicas.",
     )
-    st.caption("Demo stub — datos de ejemplo. Los datos reales se conectan a las plataformas académicas.")
 
     _kpi_row()
     df = _alumnos()
 
     c1, c2 = st.columns([1, 2])
     with c1:
-        fac = st.selectbox("Filtrar por facultad", ["Todas"] + FACULTADES)
-        filt = df if fac == "Todas" else df[df.Facultad == fac]
-        st.dataframe(
-            filt[["Cédula", "Alumno", "Carrera", "Curso", "Promedio"]].head(15),
-            width="stretch",
-            hide_index=True,
-        )
+        with st.container(key="panel_tabla", border=False):
+            st.markdown('<div class="ucsa-panel-title">Alumnos — tabla</div>', unsafe_allow_html=True)
+            fac = st.selectbox("Filtrar por facultad", ["Todas"] + FACULTADES)
+            filt = df if fac == "Todas" else df[df.Facultad == fac]
+            st.dataframe(
+                filt[["Cédula", "Alumno", "Carrera", "Curso", "Promedio"]].head(15),
+                width="stretch",
+                hide_index=True,
+            )
     with c2:
-        st.markdown(f"<b style='color:{STEEL}'>Alumnos por facultad</b>", unsafe_allow_html=True)
-        dist = filt.Facultad.value_counts()
-        st.bar_chart(dist, color=NAVY)
-        promedio = filt.Promedio.mean()
-        st.markdown(
-            f"<span style='color:{TEAL};font-weight:700;'>Promedio general del filtro: "
-            f"{promedio:.2f} / 5.00</span>",
-            unsafe_allow_html=True,
-        )
+        with st.container(key="panel_chart", border=False):
+            st.markdown('<div class="ucsa-panel-title">Alumnos por facultad</div>', unsafe_allow_html=True)
+            dist = filt.Facultad.value_counts()
+            st.bar_chart(dist, color=PRIMARY)
+            promedio = filt.Promedio.mean()
+            st.markdown(
+                f'<div class="ucsa-panel-note" style="color:{TEAL};">'
+                f'Promedio general del filtro: {promedio:.2f} / 5.00</div>',
+                unsafe_allow_html=True,
+            )
 
 
 if __name__ == "__main__":

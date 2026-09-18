@@ -6,7 +6,7 @@ import random
 import pandas as pd
 import streamlit as st
 
-from apps.theme import NAVY, STEEL, TEAL, render_topbar
+from apps.theme import STEEL, TEAL, kpi_card_html, render_app_header
 
 DEPARTAMENTOS = ["Docencia", "Administración", "Tecnología", "Mantenimiento", "Servicios"]
 CARGOS = {
@@ -45,42 +45,44 @@ def _empleados() -> pd.DataFrame:
 
 def _kpi_row() -> None:
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Colaboradores", "387", "+12")
-    k2.metric("Ausentismo mensual", "3,4 %", "-0,6 %")
-    k3.metric("Nómina mensual", "₲ 2,84 MM", "+4,1 %")
-    k4.metric("Evaluación desempeño", "4,1 / 5", "+0,2")
+    k1.markdown(kpi_card_html("Colaboradores", "387", "+12"), unsafe_allow_html=True)
+    # Baja de ausentismo es buena noticia: flecha ▼ pero en verde
+    k2.markdown(kpi_card_html("Ausentismo mensual", "3,4 %", "-0,6 %"), unsafe_allow_html=True)
+    k3.markdown(kpi_card_html("Nómina mensual", "₲ 2,84 MM", "+4,1 %"), unsafe_allow_html=True)
+    k4.markdown(kpi_card_html("Evaluación desempeño", "4,1 / 5", "+0,2"), unsafe_allow_html=True)
 
 
 def run() -> None:
-    render_topbar("Gestión RRHH — UCSA")
-    st.markdown(
-        f"<h2 style='color:{NAVY};margin:0.4rem 0;'>👥 Administración de Capital Humano</h2>",
-        unsafe_allow_html=True,
+    render_app_header(
+        "Gestión RRHH",
+        "Demo stub — datos de ejemplo. Conexión futura al sistema de RRHH institucional.",
     )
-    st.caption("Demo stub — datos de ejemplo. Conexión futura al sistema de RRHH institucional.")
 
     _kpi_row()
     df = _empleados()
 
     c1, c2 = st.columns([1, 2])
     with c1:
-        depto = st.selectbox("Filtrar por departamento", ["Todos"] + DEPARTAMENTOS)
-        filt = df if depto == "Todos" else df[df.Departamento == depto]
-        st.dataframe(
-            filt[["Cédula", "Nombre", "Cargo", "Salario (Gs)", "Asistencias mes"]].head(15),
-            width="stretch",
-            hide_index=True,
-        )
+        with st.container(key="panel_tabla", border=False):
+            st.markdown('<div class="ucsa-panel-title">Empleados — tabla</div>', unsafe_allow_html=True)
+            depto = st.selectbox("Filtrar por departamento", ["Todos"] + DEPARTAMENTOS)
+            filt = df if depto == "Todos" else df[df.Departamento == depto]
+            st.dataframe(
+                filt[["Cédula", "Nombre", "Cargo", "Salario (Gs)", "Asistencias mes"]].head(15),
+                width="stretch",
+                hide_index=True,
+            )
     with c2:
-        st.markdown(f"<b style='color:{STEEL}'>Colaboradores por departamento</b>", unsafe_allow_html=True)
-        st.bar_chart(filt.Departamento.value_counts(), color=STEEL)
-        n_dias = 26
-        asistencia = (filt["Asistencias mes"] / n_dias * 100).mean() if len(filt) else 0
-        st.markdown(
-            f"<span style='color:{TEAL};font-weight:700;'>Asistencia promedio del filtro: "
-            f"{asistencia:.1f} %</span>",
-            unsafe_allow_html=True,
-        )
+        with st.container(key="panel_chart", border=False):
+            st.markdown('<div class="ucsa-panel-title">Colaboradores por departamento</div>', unsafe_allow_html=True)
+            st.bar_chart(filt.Departamento.value_counts(), color=STEEL)
+            n_dias = 26
+            asistencia = (filt["Asistencias mes"] / n_dias * 100).mean() if len(filt) else 0
+            st.markdown(
+                f'<div class="ucsa-panel-note" style="color:{TEAL};">'
+                f'Asistencia promedio del filtro: {asistencia:.1f} %</div>',
+                unsafe_allow_html=True,
+            )
 
 
 if __name__ == "__main__":

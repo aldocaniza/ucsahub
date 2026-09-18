@@ -6,7 +6,7 @@ import random
 import pandas as pd
 import streamlit as st
 
-from apps.theme import NAVY, STEEL, TEAL, render_topbar
+from apps.theme import TEAL, kpi_card_html, render_app_header
 
 PRODUCTOS = [
     ("Remera UCSA", 150_000),
@@ -42,45 +42,45 @@ def _ventas() -> pd.DataFrame:
 
 def _kpi_row(ventas: pd.DataFrame) -> None:
     total = ventas["Ingresos (Gs)"].sum()
-    pedidos = ventas[(ventas.Cantidad > 0)].shape[0]
+    pedidos = ventas[ventas.Cantidad > 0].shape[0]
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Ingresos últimos 60 días", f"₲ {total/1e6:.2f} M", "+12,4 %")
-    k2.metric("Pedidos", f"{pedidos:,}".replace(",", "."), "+9,1 %")
-    k3.metric("Productos activos", f"{len(PRODUCTOS)}", "—")
-    k4.metric("Ticket promedio", f"₲ {total / max(pedidos, 1):,.0f}".replace(",", "."), "+2,3 %")
+    k1.markdown(kpi_card_html("Ingresos últimos 60 días", f"₲ {total/1e6:.2f} M", "+12,4 %"), unsafe_allow_html=True)
+    k2.markdown(kpi_card_html("Pedidos", f"{pedidos:,}".replace(",", "."), "+9,1 %"), unsafe_allow_html=True)
+    k3.markdown(kpi_card_html("Productos activos", f"{len(PRODUCTOS)}"), unsafe_allow_html=True)
+    k4.markdown(kpi_card_html("Ticket promedio", f"₲ {total / max(pedidos, 1):,.0f}".replace(",", "."), "+2,3 %"), unsafe_allow_html=True)
 
 
 def run() -> None:
-    render_topbar("Ecommerce UCSA")
-    st.markdown(
-        f"<h2 style='color:{NAVY};margin:0.4rem 0;'>🛒 Tienda Oficial de la Comunidad Académica</h2>",
-        unsafe_allow_html=True,
+    render_app_header(
+        "Ecommerce UCSA",
+        "Demo stub — datos de ejemplo. Integración futura con pasarela de pagos y stock real.",
     )
-    st.caption("Demo stub — datos de ejemplo. Integración futura con pasarela de pagos y stock real.")
 
     ventas = _ventas()
     _kpi_row(ventas)
 
     c1, c2 = st.columns([2, 1])
     with c1:
-        st.markdown(f"<b style='color:{STEEL}'>Ingresos por día</b>", unsafe_allow_html=True)
-        diario = ventas.groupby("Fecha")["Ingresos (Gs)"].sum()
-        st.line_chart(diario, color=TEAL)
+        with st.container(key="panel_chart", border=False):
+            st.markdown('<div class="ucsa-panel-title">Ingresos por día</div>', unsafe_allow_html=True)
+            diario = ventas.groupby("Fecha")["Ingresos (Gs)"].sum()
+            st.line_chart(diario, color=TEAL)
     with c2:
-        st.markdown(f"<b style='color:{STEEL}'>Catálogo</b>", unsafe_allow_html=True)
-        for nombre, precio in PRODUCTOS:
+        with st.container(key="panel_catalogo", border=False):
+            st.markdown('<div class="ucsa-panel-title">Catálogo</div>', unsafe_allow_html=True)
+            for nombre, precio in PRODUCTOS:
+                st.markdown(
+                    f'<div style="display:flex;justify-content:space-between;padding:4px 0;'
+                    f'border-bottom:1px solid #E3E8EF;">'
+                    f'<span>{nombre}</span><b>₲ {precio:,}</b></div>'.replace(",", "."),
+                    unsafe_allow_html=True,
+                )
+            top = ventas.groupby("Producto").Cantidad.sum().sort_values(ascending=False).head(3)
             st.markdown(
-                f"<div style='display:flex;justify-content:space-between;padding:4px 0;"
-                f"border-bottom:1px solid #E3E8EF;'>"
-                f"<span>{nombre}</span><b>₲ {precio:,}</b></div>".replace(",", "."),
+                '<div class="ucsa-panel-note" style="color:#0D47A1;">'
+                f'Top ventas: {", ".join(top.index)}</div>',
                 unsafe_allow_html=True,
             )
-        top = ventas.groupby("Producto").Cantidad.sum().sort_values(ascending=False).head(3)
-        st.markdown(
-            f"<span style='color:{NAVY};font-weight:700;'>Top ventas: "
-            f"{', '.join(top.index)}</span>",
-            unsafe_allow_html=True,
-        )
 
 
 if __name__ == "__main__":
