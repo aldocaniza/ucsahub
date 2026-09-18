@@ -25,7 +25,7 @@ Reestilizar el Hub UCSA completo (landing + 3 apps stub) con estética "Portal I
 - Smoke test: AppTest con /usr/bin/python3 (3.12), no python3 linuxbrew
 
 ## Evidencia de commits
-- 7a1d138 feat: corporate institutional portal redesign for UCSA Hub (5 archivos + feature doc + mirror)
+- 9af76d4 feat: corporate institutional portal redesign for UCSA Hub (5 archivos + feature doc + mirror)
 
 ## Fallback delegación
 - gentle-ai-worker intentado 2× para T-1..T-3 (surfaces 5 archivos, spec detallada): falló en ambos intentos con "assistant returned no final report" sin tocar archivos. Role inusable en esta sesión → implementación inline en el parent con las mismas surfaces (fallback permitido por el Work Routing Ladder).
