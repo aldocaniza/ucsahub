@@ -150,7 +150,7 @@ def _features() -> None:
         ("🔐", "Acceso institucional",
          "Preparado para autenticación única UCSA y roles por facultad o dependencia."),
         ("📱", "Accesible desde cualquier dispositivo",
-         "Sitio responsive. En red local o vía Tailscale desde cualquier ubicación."),
+         "Sitio responsive. Accedé desde cualquier dispositivo, donde estés."),
     ]
     cols = st.columns(3)
     for col, (icon, title, desc) in zip(cols, tiles):
