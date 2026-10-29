@@ -4,12 +4,12 @@ Landing page (Streamlit) que integra proyectos académicos de la **Universidad d
 
 ## Incluye
 
-| Ruta | App | Descripción |
-|------|-----|-------------|
-| `/` | Landing | Hub con cards de acceso a cada proyecto |
-| `/?app=academico` | Panel Académico | KPIs, alumnos por facultad, tabla filtrable |
-| `/?app=rrhh` | Gestión RRHH | KPIs, colaboradores por departamento, nómina |
-| `/?app=ecommerce` | Ecommerce UCSA | Ingresos, catálogo en ₲, top ventas |
+| Ruta              | App             | Descripción                                  |
+| ----------------- | --------------- | -------------------------------------------- |
+| `/`               | Landing         | Hub con cards de acceso a cada proyecto      |
+| `/?app=academico` | Panel Académico | KPIs, alumnos por facultad, tabla filtrable  |
+| `/?app=rrhh`      | Gestión RRHH    | KPIs, colaboradores por departamento, nómina |
+| `/?app=ecommerce` | Ecommerce UCSA  | Ingresos, catálogo en ₲, top ventas          |
 
 Las 3 apps son **stubs funcionales** con datos de ejemplo (seed determinista). Reemplazables por las aplicaciones reales de cada plataforma.
 
