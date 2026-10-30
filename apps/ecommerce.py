@@ -80,7 +80,7 @@ def _kpi_row(ventas: pd.DataFrame, pedidos: pd.DataFrame) -> None:
 
 
 def run() -> None:
-    render_header("acaniza")
+    render_header()
     render_app_header(
         "Ecommerce UCSA",
         "Tienda oficial de la comunidad académica UCSA — Catálogo, carrito, pedidos y ventas",

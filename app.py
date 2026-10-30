@@ -37,7 +37,8 @@ def _logo_b64() -> str | None:
 
 
 def _visible(meta, cat, q):
-    ok_cat = cat == "Todas" or meta["tag"] == cat
+    # cat is internal: "all", "doc", "com", "ins"
+    ok_cat = cat == "all" or meta["cat"] == cat
     texto = f'{meta["title"]} {meta["subtitle"]} {meta["tag"]}'.lower()
     return ok_cat and (not q or q in texto)
 
@@ -67,53 +68,65 @@ def _card(app_id, meta):
 
 
 def _landing():
-    # sprite once
     if not st.session_state.get("_sprite_injected"):
         st.markdown(SVG_SPRITE, unsafe_allow_html=True)
         st.session_state["_sprite_injected"] = True
-    render_header("acaniza")
+
+    render_header()
 
     logo_b64 = _logo_b64()
-    logo_html = (f'<img src="data:image/png;base64,{logo_b64}" '
-                 f'style="width:72px;height:72px;object-fit:contain" alt="UCSA"/>'
-                 if logo_b64 else "<b>UCSA</b>")
+    LOGO_HTML = f'<img src="data:image/png;base64,{logo_b64}" alt="UCSA">' if logo_b64 else '<div class="logo-placeholder">UCSA</div>'
 
-    # hero
-    st.markdown(
-        f'<section class="hero">'
+    # ── HERO ──────────────────────────────────────────────────────────
+    BRAND_HTML = (
         f'<div class="brand">'
-        f'<div class="logo">{logo_html}</div>'
+        f'<div class="logo">{LOGO_HTML}</div>'
         f'<div class="vline"></div>'
-        f'<div><h1>UCSA Hub - Portal de Proyectos Académicos</h1>'
+        f'<div><span class="kicker">Portal institucional</span>'
+        f'<h1>UCSA Hub - Portal de Proyectos Académicos</h1>'
         f'<p>Todos tus proyectos en un solo lugar.</p></div>'
         f'</div>'
-        f'<div class="search"><svg class="i"><use href="#search"/></svg>'
-        f'<input id="q" type="text" placeholder="Buscar proyectos" disabled></div>'
-        f'<div class="secure"><i><svg class="i"><use href="#shield"/></svg></i>'
-        f'<div><strong>Acceso Institucional</strong><span>Según tu rol</span></div></div>'
-        f'</section>',
-        unsafe_allow_html=True,
+    )
+    SECURE_HTML = (
+        '<div class="secure">'
+        f'<i>{icon("shield")}</i>'
+        '<div><strong>Acceso Institucional</strong><span>Según tu rol</span></div>'
+        '</div>'
     )
 
-    # native pills + search
-    c1, c2 = st.columns([3, 1.2])
-    with c1:
-        cat = st.pills("Categoría", ["Todas", "Docencia", "Comercial", "Institucional"],
-                       default="Todas", label_visibility="collapsed", key="cat") or "Todas"
-    with c2:
-        q = st.text_input("Buscar", placeholder="Buscar proyectos",
-                          label_visibility="collapsed", key="q").strip().lower()
+    with st.container(key="hero"):
+        c1, c2, c3 = st.columns([2.2, 1.1, 0.9], vertical_alignment="center")
+        with c1:
+            st.markdown(BRAND_HTML, unsafe_allow_html=True)
+        with c2:
+            q = st.text_input("Buscar", placeholder="Buscar proyectos",
+                              label_visibility="collapsed", key="hero_q").strip().lower()
+        with c3:
+            st.markdown(SECURE_HTML, unsafe_allow_html=True)
 
-    featured_ids = [aid for aid, m in APP_META.items() if m["featured"] and _visible(m, cat, q)]
-    other_ids = [aid for aid, m in APP_META.items() if not m["featured"] and _visible(m, cat, q)]
+    # ── TABS ──────────────────────────────────────────────────────────
+    cat = st.pills(
+        "Categoría",
+        ["Todas", "Docencia", "Comercial", "Institucional"],
+        default="Todas",
+        label_visibility="collapsed",
+        key="cat",
+    ) or "Todas"
+
+    # Map display names to internal cat values
+    cat_map = {"Todas": "all", "Docencia": "doc", "Comercial": "com", "Institucional": "ins"}
+    cat_val = cat_map.get(cat, "all")
+
+    featured_ids = [aid for aid, m in APP_META.items() if m["featured"] and _visible(m, cat_val, q)]
+    other_ids = [aid for aid, m in APP_META.items() if not m["featured"] and _visible(m, cat_val, q)]
 
     if not (featured_ids or other_ids):
         st.markdown('<div class="empty" style="display:block">Sin resultados. Probá con otro término o categoría.</div>',
                     unsafe_allow_html=True)
-        # features + footer
-        _features_footer()
+        _features_footer(logo_b64)
         return
 
+    # Featured section
     if featured_ids:
         st.markdown(
             '<div class="sec"><div class="sec-ic"><svg class="i"><use href="#star"/></svg></div>'
@@ -124,33 +137,57 @@ def _landing():
         cards = "".join(_card(aid, APP_META[aid]) for aid in featured_ids)
         st.markdown(f'<div class="grid">{cards}</div>', unsafe_allow_html=True)
 
+    # All projects section with count pill
     if other_ids:
+        pill_html = f'<span class="pill" style="background:#E8ECF5;color:#1e3461">{len(other_ids)} proyectos</span>'
         st.markdown(
-            '<div class="sec"><div class="sec-ic blue"><svg class="i"><use href="#grid"/></svg></div>'
-            '<div><h2>Todos los proyectos</h2><small>Resto de aplicaciones disponibles</small></div></div>',
+            f'<div class="sec"><div class="sec-ic blue"><svg class="i"><use href="#grid"/></svg></div>'
+            f'<div><h2>Todos los proyectos</h2><small>Resto de aplicaciones disponibles</small></div>'
+            f'{pill_html}</div>',
             unsafe_allow_html=True,
         )
         cards = "".join(_card(aid, APP_META[aid]) for aid in other_ids)
         st.markdown(f'<div class="grid">{cards}</div>', unsafe_allow_html=True)
 
-    _features_footer()
+    _features_footer(logo_b64)
 
 
-def _features_footer():
+def _features_footer(logo_b64):
+    LOGO_FOOTER = f'<img src="data:image/png;base64,{logo_b64}" alt="UCSA Universidad">' if logo_b64 else ''
     st.markdown(
         '<div class="grid feats">'
-        '<div class="feat-t"><i><svg class="i"><use href="#link"/></svg></i>'
+        f'<div class="feat-t"><i>{icon("link")}</i>'
         '<b>Integración multiplataforma</b>'
         '<span>Cada proyecto vive en su propia plataforma. El Hub los unifica bajo un único acceso.</span></div>'
-        '<div class="feat-t"><i><svg class="i"><use href="#lock"/></svg></i>'
+        f'<div class="feat-t"><i>{icon("lock")}</i>'
         '<b>Acceso institucional</b>'
         '<span>Preparado para autenticación única UCSA y roles por facultad o dependencia.</span></div>'
-        '<div class="feat-t"><i><svg class="i"><use href="#phone"/></svg></i>'
+        f'<div class="feat-t"><i>{icon("phone")}</i>'
         '<b>Accesible desde cualquier dispositivo</b>'
         '<span>Sitio responsive. Accedé desde cualquier dispositivo, donde estés.</span></div>'
-        '</div>'
-        '<div class="foot">Universidad del Cono Sur de las Américas — UCSA · '
-        '<a href="https://ucsa.edu.py">ucsa.edu.py</a> · Demo con datos de ejemplo</div>',
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    # Institutional footer
+    st.markdown(
+        f'<footer class="foot">'
+        f'<div class="foot-g">'
+        f'{LOGO_FOOTER}'
+        f'<div>'
+        f'<p><b>Universidad del Cono Sur de las Américas</b></p>'
+        f'<p>Sgto. Gauto 972 casi Venezuela, Asunción</p>'
+        f'<p>Lunes a Viernes: 08:00 - 21:00 h</p>'
+        f'</div>'
+        f'<div class="foot-s">'
+        f'<a href="https://www.ucsa.edu.py" target="_blank" rel="noopener">ucsa.edu.py</a>'
+        f'<a href="https://www.instagram.com/universidaducsa/" target="_blank" rel="noopener">Instagram</a>'
+        f'<a href="https://www.facebook.com/universidaducsa" target="_blank" rel="noopener">Facebook</a>'
+        f'<a href="https://www.linkedin.com/school/ucsapy/" target="_blank" rel="noopener">LinkedIn</a>'
+        f'<a href="https://www.youtube.com/@UniversidadUCSA" target="_blank" rel="noopener">YouTube</a>'
+        f'</div>'
+        f'</div>'
+        f'<div class="foot-b">UCSA Hub · Demo con datos de ejemplo</div>'
+        f'</footer>',
         unsafe_allow_html=True,
     )
 
@@ -158,7 +195,7 @@ def _features_footer():
 def main():
     app_id = st.query_params.get("app")
     if app_id in _APP_ROUTES:
-        render_header("acaniza")
+        render_header()
         _APP_ROUTES[app_id].run()
     else:
         _landing()

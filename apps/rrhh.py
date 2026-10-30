@@ -60,7 +60,7 @@ def _kpi_row(df: pd.DataFrame) -> None:
 
 
 def run() -> None:
-    render_header("acaniza")
+    render_header()
     render_app_header(
         "Gestión RRHH",
         "Módulo RRHH UCSA — Legajo, asistencias, nómina, evaluaciones y solicitudes",

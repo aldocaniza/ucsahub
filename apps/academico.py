@@ -218,7 +218,7 @@ def _perfil(alumno: dict) -> None:
 
 
 def run() -> None:
-    render_header("acaniza")
+    render_header()
     render_app_header(
         "Portal Académico - Estudiantes",
         "Portal del Estudiante UCSA — Inscripciones, horarios, calificaciones, trámites y pagos",
