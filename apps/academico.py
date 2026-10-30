@@ -7,7 +7,7 @@ from datetime import date, timedelta
 import pandas as pd
 import streamlit as st
 
-from apps.theme import PRIMARY, TEAL, kpi_card_html, render_app_header
+from apps.theme import render_header, PRIMARY, TEAL, kpi_card_html, render_app_header
 
 ALUMNOS_DEMO = [
     {"id": "A-00123", "cedula": "4.567.890", "nombre": "Ana López", "carrera": "Ingeniería Informática", "facultad": "Ingeniería y Tecnología", "curso": 4, "correo": "ana.lopez@ucsa.edu.py"},
@@ -218,6 +218,7 @@ def _perfil(alumno: dict) -> None:
 
 
 def run() -> None:
+    render_header("acaniza")
     render_app_header(
         "Portal Académico - Estudiantes",
         "Portal del Estudiante UCSA — Inscripciones, horarios, calificaciones, trámites y pagos",

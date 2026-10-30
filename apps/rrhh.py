@@ -7,7 +7,7 @@ from datetime import date
 import pandas as pd
 import streamlit as st
 
-from apps.theme import STEEL, TEAL, PRIMARY, kpi_card_html, render_app_header
+from apps.theme import render_header, STEEL, TEAL, PRIMARY, kpi_card_html, render_app_header
 
 DEPARTAMENTOS = ["Docencia", "Administración", "Tecnología", "Mantenimiento", "Servicios"]
 CARGOS = {
@@ -60,6 +60,7 @@ def _kpi_row(df: pd.DataFrame) -> None:
 
 
 def run() -> None:
+    render_header("acaniza")
     render_app_header(
         "Gestión RRHH",
         "Módulo RRHH UCSA — Legajo, asistencias, nómina, evaluaciones y solicitudes",
